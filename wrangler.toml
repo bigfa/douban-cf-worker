@@ -1,0 +1,30 @@
+name = "douban-cf-worker"
+compatibility_date = "2023-12-01"
+main = "src/index.ts"
+minify = true
+
+[vars]
+DOMAIN = "https://bigfa.github.io"
+DBID = 54529369
+R2DOMAIN = "https://db.wpista.com"
+WOKRERDOMAIN = "https://dbapi.wpista.com"
+PAGESIZE = 40
+
+# [[kv_namespaces]]
+# binding = "MY_KV_NAMESPACE"
+# id = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+
+[[r2_buckets]]
+binding = "DOUBAN_BUCKET"
+bucket_name = "douban"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "douban"
+database_id = "c3f4fe6b-4fb2-4513-b7e9-3b264d3e3634"
+
+# [ai]
+# binding = "AI"
+
+[triggers]
+crons = ["* * * * *"]
