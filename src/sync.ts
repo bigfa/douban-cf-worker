@@ -10,9 +10,10 @@ const sync = async (bindings: Bindings) => {
         R2DOMAIN,
         WOKRERDOMAIN,
         PAGESIZE,
+        TYPES,
     } = bindings;
 
-    const types: string = "music";
+    const types: string = TYPES;
     const typeList = types.split(",");
     console.log(typeList);
     for (let type of typeList) {

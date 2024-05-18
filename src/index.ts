@@ -1,33 +1,8 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import { logger } from "hono/logger";
+import { bearerAuth } from "hono/bearer-auth";
 import sync from "./sync";
-
-type Bindings = {
-    // Add your bindings here
-    DB: D1Database;
-    DOUBAN_BUCKET: R2Bucket;
-    FARALLON: KVNamespace;
-    DOMAIN: string;
-    DBID: string;
-    R2DOMAIN: string;
-    WOKRERDOMAIN: string;
-    PAGESIZE: number;
-};
-
-interface DoubanObject {
-    subject_id: string;
-    name: string;
-    card_subtitle: string;
-    create_time: number;
-    douban_score: string;
-    link: string;
-    type: string;
-    poster: string;
-    pubdate: string;
-    year: string;
-    update_time: number;
-}
+import { DoubanObject, Bindings } from "./type";
 
 const app = new Hono<{ Bindings: Bindings }>();
 
@@ -35,158 +10,83 @@ app.get("/", (c) => {
     return c.text("Hello Hono!");
 });
 
-app.get("/init", async (c) => {
-    const paged: number = parseInt(c.req.query("paged") || "0");
-    const type: string = c.req.query("type") || "movie";
-    console.log(paged);
+app.get(
+    "/init",
+    bearerAuth({
+        verifyToken: async (token, c) => {
+            return token === c.env.TOKEN;
+        },
+    }),
+    async (c) => {
+        const paged: number = parseInt(c.req.query("paged") || "0");
+        const type: string = c.req.query("type") || "movie";
+        console.log(paged);
 
-    const res: any = await fetch(
-        `https://m.douban.com/rexxar/api/v2/user/${
-            c.env.DBID
-        }/interests?count=50&start=${50 * paged}&type=${type}`,
-        {
-            headers: {
-                Referer: "https://m.douban.com/",
-                "User-Agent":
-                    "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1",
-            },
-        }
-    );
-    let data: any = await res.json();
-    const interets = data.interests;
-    if (interets.length === 0) {
-        return c.text("No more data");
-    } else {
-        for (let interet of interets) {
-            try {
-                console.log(
-                    interet.subject.id,
-                    interet.subject.title,
-                    interet.subject.card_subtitle,
-                    interet.create_time,
-                    interet.subject.rating.value,
-                    interet.subject.url,
-                    interet.subject.pubdate ? interet.subject.pubdate[0] : "",
-                    interet.subject.year,
-                    type
-                );
-                if (
-                    interet.subject.title == "未知电视剧" ||
-                    interet.subject.title == "未知电影"
-                )
-                    continue;
-
-                await c.env.DB.prepare(
-                    "INSERT INTO douban_objects (subject_id, name , card_subtitle, create_time, douban_score,link,type) VALUES (?, ?, ?, ?, ?, ?, ?)"
-                )
-                    .bind(
+        const res: any = await fetch(
+            `https://m.douban.com/rexxar/api/v2/user/${
+                c.env.DBID
+            }/interests?count=50&start=${50 * paged}&type=${type}`,
+            {
+                headers: {
+                    Referer: "https://m.douban.com/",
+                    "User-Agent":
+                        "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1",
+                },
+            }
+        );
+        let data: any = await res.json();
+        const interets = data.interests;
+        if (interets.length === 0) {
+            return c.text("No more data");
+        } else {
+            for (let interet of interets) {
+                try {
+                    console.log(
                         interet.subject.id,
                         interet.subject.title,
                         interet.subject.card_subtitle,
                         interet.create_time,
                         interet.subject.rating.value,
                         interet.subject.url,
+                        interet.subject.pubdate
+                            ? interet.subject.pubdate[0]
+                            : "",
+                        interet.subject.year,
                         type
+                    );
+                    if (
+                        interet.subject.title == "未知电视剧" ||
+                        interet.subject.title == "未知电影"
                     )
-                    .run();
+                        continue;
 
-                // } else {
-                //     confition = false;
-                // }
-            } catch (e) {
-                console.log(e);
-                return c.json({ err: e }, 500);
-            }
-        }
-    }
-
-    return c.text("Synced");
-});
-
-app.get("/sync", async (c) => {
-    const types: string = c.req.query("types") || "movie";
-    const typeList = types.split(",");
-    console.log(typeList);
-    for (let type of typeList) {
-        let confition = true,
-            i = 0;
-        while (confition) {
-            console.log(type);
-            const res: any = await fetch(
-                `https://m.douban.com/rexxar/api/v2/user/${
-                    c.env.DBID
-                }/interests?count=50&start=${50 * i}&type=${type}`,
-                {
-                    headers: {
-                        Referer: "https://m.douban.com/",
-                        "User-Agent":
-                            "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1",
-                    },
-                }
-            );
-            let data: any = await res.json();
-            const interets = data.interests;
-            if (interets.length === 0) {
-                confition = false;
-                console.log("No more data");
-            } else {
-                for (let interet of interets) {
-                    try {
-                        const dbobject = await c.env.DB.prepare(
-                            "SELECT * FROM douban_objects WHERE subject_id = ? AND type = ?"
+                    await c.env.DB.prepare(
+                        "INSERT INTO douban_objects (subject_id, name , card_subtitle, create_time, douban_score,link,type) VALUES (?, ?, ?, ?, ?, ?, ?)"
+                    )
+                        .bind(
+                            interet.subject.id,
+                            interet.subject.title,
+                            interet.subject.card_subtitle,
+                            interet.create_time,
+                            interet.subject.rating.value,
+                            interet.subject.url,
+                            type
                         )
-                            .bind(interet.subject.id, type)
-                            .first<DoubanObject>();
-                        if (!dbobject) {
-                            console.log(
-                                interet.subject.id,
-                                interet.subject.title,
-                                interet.subject.card_subtitle,
-                                interet.create_time,
-                                interet.subject.rating.value,
-                                interet.subject.url,
-                                interet.subject.pubdate
-                                    ? interet.subject.pubdate[0]
-                                    : "",
-                                interet.subject.year,
-                                type
-                            );
-                            if (
-                                interet.subject.title == "未知电视剧" ||
-                                interet.subject.title == "未知电影"
-                            )
-                                continue;
+                        .run();
 
-                            await c.env.DB.prepare(
-                                "INSERT INTO douban_objects (subject_id, name , card_subtitle, create_time, douban_score,link,type) VALUES (?, ?, ?, ?, ?, ?, ?)"
-                            )
-                                .bind(
-                                    interet.subject.id,
-                                    interet.subject.title,
-                                    interet.subject.card_subtitle,
-                                    interet.create_time,
-                                    interet.subject.rating.value,
-                                    interet.subject.url,
-                                    type
-                                )
-                                .run();
-                        } else {
-                            console.log("no new data");
-                            confition = false;
-                            break;
-                        }
-                    } catch (e) {
-                        console.log(e);
-                        return c.json({ err: e }, 500);
-                    }
+                    // } else {
+                    //     confition = false;
+                    // }
+                } catch (e) {
+                    console.log(e);
+                    return c.json({ err: e }, 500);
                 }
-                i++;
             }
         }
-    }
 
-    return c.text("Synced");
-});
+        return c.text("Synced");
+    }
+);
 
 app.get(
     "/list",

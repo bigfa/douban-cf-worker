@@ -8,6 +8,8 @@ export type Bindings = {
     R2DOMAIN: string;
     WOKRERDOMAIN: string;
     PAGESIZE: number;
+    TYPES: string;
+    TOKEN: string;
 };
 
 export interface DoubanObject {
