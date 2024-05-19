@@ -1,4 +1,4 @@
-import { Bindings, DoubanObject } from "../models/dbModule";
+import { Bindings, DoubanObject } from "../models";
 import { dbRequest } from "../utils/request";
 
 const sync = async (bindings: Bindings) => {

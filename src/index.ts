@@ -1,11 +1,24 @@
 import { Hono } from "hono";
 import sync from "./controllers/syncControllers";
 import { Douban } from "./routers";
-import { Bindings } from "./models/dbModule";
+import { Bindings } from "./models";
+import { errorHandler, notFound } from "./middlewares";
 
 const app = new Hono<{ Bindings: Bindings }>();
 
 app.route("/", Douban);
+
+// Error Handler
+app.onError((err, c) => {
+    const error = errorHandler(c);
+    return error;
+});
+
+// Not Found Handler
+app.notFound((c) => {
+    const error = notFound(c);
+    return error;
+});
 
 export default {
     async scheduled(

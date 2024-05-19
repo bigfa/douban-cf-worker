@@ -1,5 +1,5 @@
 import { Context } from "hono";
-import { DoubanObject } from "../models/dbModule";
+import { DoubanObject } from "../models";
 import { dbRequest } from "../utils/request";
 
 export const getObjects = async (c: Context) => {
@@ -208,12 +208,12 @@ export const fetchDBObject = async (c: Context) => {
             return c.text("Not found");
         }
 
-        object.poster = `${c.env.WOKRERDOMAIN}/db/${type}/${id}.jpg`;
+        object.poster = `${c.env.WOKRERDOMAIN}/${type}/${id}.jpg`;
 
         return c.json(object);
     } else {
         if (!object.poster) {
-            object.poster = `${c.env.WOKRERDOMAIN}/db/${type}/${id}.jpg`;
+            object.poster = `${c.env.WOKRERDOMAIN}/${type}/${id}.jpg`;
         } else {
             object.poster = `${c.env.R2DOMAIN}/${object.poster}`;
         }
