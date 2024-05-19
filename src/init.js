@@ -26,7 +26,11 @@ types.forEach(async (type) => {
     const total = res.total;
     const total_page = Math.ceil(total / 50);
     for (let paged = 0; paged < total_page; paged++) {
-        request(WORKER_URL + "/init?paged=" + paged + "&type=" + type);
+        request(WORKER_URL + "/init?paged=" + paged + "&type=" + type, {
+            headers: {
+                Authorization: "Bearer " + process.env.TOKEN,
+            },
+        });
         console.info(DOUBAN_ID, type, total, paged, total_page);
     }
 });
