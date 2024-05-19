@@ -15,7 +15,6 @@ const requestOptions = {
 
 async function getTotal(type) {
     const url = `https://frodo.douban.com/api/v2/user/${DOUBAN_ID}/interests?count=10&start=0&type=${type}&apiKey=0ac44ae016490db2204ce0a042db2916`;
-
     return request(url, requestOptions).then(({ body }) => body.json());
 }
 

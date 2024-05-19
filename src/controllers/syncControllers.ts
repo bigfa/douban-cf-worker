@@ -1,5 +1,5 @@
 import { Bindings, DoubanObject } from "../models";
-import { dbRequest } from "../utils/request";
+import { dbRequest } from "../utils";
 
 const sync = async (bindings: Bindings) => {
     const {

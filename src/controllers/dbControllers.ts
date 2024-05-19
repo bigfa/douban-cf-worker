@@ -1,6 +1,6 @@
 import { Context } from "hono";
 import { DoubanObject } from "../models";
-import { dbRequest } from "../utils/request";
+import { dbRequest } from "../utils";
 
 export const getObjects = async (c: Context) => {
     const type: string = c.req.query("type") || "movie";
@@ -57,6 +57,7 @@ export const initDB = async (c: Context) => {
                     interet.subject.year,
                     type
                 );
+                // 过滤无法显示的内容
                 if (
                     interet.subject.title == "未知电视剧" ||
                     interet.subject.title == "未知电影"
@@ -76,10 +77,6 @@ export const initDB = async (c: Context) => {
                         type
                     )
                     .run();
-
-                // } else {
-                //     confition = false;
-                // }
             } catch (e) {
                 console.log(e);
                 return c.json({ err: e }, 500);
@@ -217,7 +214,6 @@ export const fetchDBObject = async (c: Context) => {
         } else {
             object.poster = `${c.env.R2DOMAIN}/${object.poster}`;
         }
-
         return c.json(object);
     }
 };
