@@ -1,4 +1,4 @@
-import { Bindings, DoubanObject } from "./type";
+import { Bindings, DoubanObject } from "../models/dbModule";
 
 const sync = async (bindings: Bindings) => {
     const {
