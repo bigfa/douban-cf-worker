@@ -10,6 +10,7 @@ export type Bindings = {
     PAGESIZE: number;
     TYPES: string;
     TOKEN: string;
+    STATUSES: string;
 };
 
 export interface DoubanObject {
@@ -23,5 +24,5 @@ export interface DoubanObject {
     poster: string;
     pubdate: string;
     year: string;
-    update_time: number;
+    status: string;
 }

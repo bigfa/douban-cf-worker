@@ -9,7 +9,8 @@ DBID = 54529369
 R2DOMAIN = "https://db.wpista.com"
 WOKRERDOMAIN = "https://dbapi.wpista.com"
 PAGESIZE = 40
-TYPES = "book,music,game,drama"
+TYPES = "movie,book,music,game,drama"
+STATUSES = "done,mark,do"
 TOKEN = "richiscool"
 
 # [[kv_namespaces]]
