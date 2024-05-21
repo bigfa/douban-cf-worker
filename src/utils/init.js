@@ -53,7 +53,7 @@ types.forEach(async (type) => {
         const total = res.total;
         const total_page = Math.ceil(total / 50);
         for (let paged = 0; paged < total_page; paged++) {
-            await request(
+            request(
                 WORKER_URL +
                     "/init?paged=" +
                     paged +
