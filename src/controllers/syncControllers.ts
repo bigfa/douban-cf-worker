@@ -1,4 +1,5 @@
-import { Bindings, DoubanObject } from "../models/dbModule";
+import { Bindings, DoubanObject } from "../models";
+import { dbRequest } from "../utils/request";
 
 const sync = async (bindings: Bindings) => {
     const {
@@ -25,17 +26,13 @@ const sync = async (bindings: Bindings) => {
                 i = 0;
             while (confition) {
                 console.log(type);
-
-                const res: any = await fetch(
-                    `https://m.douban.com/rexxar/api/v2/user/${DBID}/interests?count=50&start=${
-                        50 * i
-                    }&type=${type}&status=${status}`,
+                console.log(type);
+                const res: any = await dbRequest(
+                    `https://frodo.douban.com/api/v2/user/${DBID}/interests`,
                     {
-                        headers: {
-                            Referer: "https://m.douban.com/",
-                            "User-Agent":
-                                "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1",
-                        },
+                        count: 50,
+                        start: 50 * i,
+                        type,
                     }
                 );
                 let data: any = await res.json();

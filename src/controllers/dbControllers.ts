@@ -1,5 +1,6 @@
 import { Context } from "hono";
-import { DoubanObject } from "../models/dbModule";
+import { DoubanObject } from "../models";
+import { dbRequest } from "../utils/request";
 
 export const getObjects = async (c: Context) => {
     const type: string = c.req.query("type") || "movie";
@@ -33,16 +34,12 @@ export const initDB = async (c: Context) => {
     const status: string = c.req.query("status") || "done";
     console.log(paged);
 
-    const res: any = await fetch(
-        `https://m.douban.com/rexxar/api/v2/user/${
-            c.env.DBID
-        }/interests?count=50&status=${status}&start=${50 * paged}&type=${type}`,
+    const res: any = await dbRequest(
+        `https://frodo.douban.com/api/v2/user/${c.env.DBID}/interests`,
         {
-            headers: {
-                Referer: "https://m.douban.com/",
-                "User-Agent":
-                    "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1",
-            },
+            count: 50,
+            start: 50 * paged,
+            type,
         }
     );
     let data: any = await res.json();
@@ -117,16 +114,8 @@ export const fetchDBPoster = async (c: Context) => {
     const object: any = await c.env.DOUBAN_BUCKET.get(key);
     // if object is null or size < 50b, fetch from douban
     if (object === null || object.size < 50) {
-        const d: any = await fetch(
-            `https://frodo.douban.com/api/v2/${type}/${id}?apiKey=0ac44ae016490db2204ce0a042db2916`,
-            {
-                headers: {
-                    Referer:
-                        "https://servicewechat.com/wx2f9b06c1de1ccfca/84/page-frame.html",
-                    "user-agent":
-                        "User-Agent: Mozilla/5.0 (iPhone; CPU iPhone OS 15_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 MicroMessenger/8.0.16(0x18001023) NetType/WIFI Language/zh_CN",
-                },
-            }
+        const d: any = await dbRequest(
+            `https://frodo.douban.com/api/v2/${type}/${id}`
         );
 
         const data = await d.json();
@@ -134,12 +123,7 @@ export const fetchDBPoster = async (c: Context) => {
         const poster = data.pic.large;
 
         // download douban image and upload to bucket
-        const headers = {
-            Referer: "https://m.douban.com/",
-            "User-Agent":
-                "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1",
-        };
-        const res = await fetch(poster, { headers });
+        const res = await dbRequest(poster);
 
         // check if error code: 522
         if (res.status === 522) {
@@ -172,7 +156,7 @@ export const fetchDBPoster = async (c: Context) => {
         objheaders.set("etag", obj.httpEtag);
 
         return new Response(obj.body, {
-            headers,
+            headers: objheaders,
         });
     } else {
         const headers = new Headers();
@@ -200,16 +184,8 @@ export const fetchDBObject = async (c: Context) => {
     console.log(object);
 
     if (object === null) {
-        const d: any = await fetch(
-            `https://frodo.douban.com/api/v2/${type}/${id}?apiKey=0ac44ae016490db2204ce0a042db2916&ck=xgtY&for_mobile=1`,
-            {
-                headers: {
-                    Referer:
-                        "https://servicewechat.com/wx2f9b06c1de1ccfca/84/page-frame.html",
-                    "user-agent":
-                        "User-Agent: Mozilla/5.0 (iPhone; CPU iPhone OS 15_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 MicroMessenger/8.0.16(0x18001023) NetType/WIFI Language/zh_CN",
-                },
-            }
+        const d: any = await dbRequest(
+            `https://frodo.douban.com/api/v2/${type}/${id}`
         );
 
         const data = await d.json();
@@ -238,12 +214,12 @@ export const fetchDBObject = async (c: Context) => {
             return c.text("Not found");
         }
 
-        object.poster = `${c.env.WOKRERDOMAIN}/db/${type}/${id}.jpg`;
+        object.poster = `${c.env.WOKRERDOMAIN}/${type}/${id}.jpg`;
 
         return c.json(object);
     } else {
         if (!object.poster) {
-            object.poster = `${c.env.WOKRERDOMAIN}/db/${type}/${id}.jpg`;
+            object.poster = `${c.env.WOKRERDOMAIN}/${type}/${id}.jpg`;
         } else {
             object.poster = `${c.env.R2DOMAIN}/${object.poster}`;
         }
