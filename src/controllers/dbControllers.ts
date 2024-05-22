@@ -91,8 +91,8 @@ export const initDB = async (c: Context) => {
 
 export const fetchDBPoster = async (c: Context) => {
     // get url from query
-    const type: ObjectTypes = (c.req.query("type") as ObjectTypes) || "movie";
-
+    const type: ObjectTypes = (c.req.param("type") as ObjectTypes) || "movie";
+    console.log(c.req.query("type"));
     // remove .jpg
     const id = c.req.param("id").replace(".jpg", "");
 
@@ -157,7 +157,7 @@ export const fetchDBPoster = async (c: Context) => {
 };
 
 export const fetchDBObject = async (c: Context) => {
-    const type: ObjectTypes = (c.req.query("type") as ObjectTypes) || "movie";
+    const type: ObjectTypes = (c.req.param("type") as ObjectTypes) || "movie";
     const id = c.req.param("id");
     // @ts-ignore
     let object = await c.env.DB.prepare(
