@@ -10,6 +10,7 @@ R2DOMAIN = "https://db.wpista.com"
 WOKRERDOMAIN = "https://dbapi.wpista.com"
 PAGESIZE = 40
 TYPES = "movie,book,music,game,drama"
+STATUSES = "done,mark,doing"
 TOKEN = "richiscool"
 
 # [[kv_namespaces]]

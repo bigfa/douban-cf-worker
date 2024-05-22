@@ -5,11 +5,13 @@ import { dbRequest } from "../utils";
 export const getObjects = async (c: Context) => {
     const type: string = c.req.query("type") || "movie";
     const paged: number = parseInt(c.req.query("paged") || "1");
+    const status: string = c.req.query("status") || "done";
+    console.log(status);
     //@ts-ignore
     const objects = await c.env.DB.prepare(
-        "SELECT * FROM douban_objects WHERE type = ? ORDER BY create_time DESC LIMIT ? OFFSET ? "
+        "SELECT * FROM douban_objects WHERE type = ? AND status = ? ORDER BY create_time DESC LIMIT ? OFFSET ? "
     )
-        .bind(type, c.env.PAGESIZE, (paged - 1) * c.env.PAGESIZE)
+        .bind(type, status, c.env.PAGESIZE, (paged - 1) * c.env.PAGESIZE)
         .all<DoubanObject>();
 
     console.log(objects.results);
@@ -29,6 +31,7 @@ export const getObjects = async (c: Context) => {
 export const initDB = async (c: Context) => {
     const paged: number = parseInt(c.req.query("paged") || "0");
     const type: string = c.req.query("type") || "movie";
+    const status: string = c.req.query("status") || "done";
     console.log(paged);
 
     const res: any = await dbRequest(
@@ -41,6 +44,7 @@ export const initDB = async (c: Context) => {
     );
     let data: any = await res.json();
     const interets = data.interests;
+    console.log(type, status, interets.length, paged);
     if (interets.length === 0) {
         return c.text("No more data");
     } else {
@@ -65,7 +69,7 @@ export const initDB = async (c: Context) => {
                     continue;
 
                 await c.env.DB.prepare(
-                    "INSERT INTO douban_objects (subject_id, name , card_subtitle, create_time, douban_score,link,type) VALUES (?, ?, ?, ?, ?, ?, ?)"
+                    "INSERT INTO douban_objects (subject_id, name , card_subtitle, create_time, douban_score,link,type ,status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
                 )
                     .bind(
                         interet.subject.id,
@@ -74,7 +78,8 @@ export const initDB = async (c: Context) => {
                         interet.create_time,
                         interet.subject.rating.value,
                         interet.subject.url,
-                        type
+                        type,
+                        interet.status
                     )
                     .run();
             } catch (e) {
