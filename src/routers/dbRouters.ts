@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { bearerAuth } from "hono/bearer-auth";
-import { Bindings } from "../models/dbModule";
+import { Bindings } from "../types";
 import { douban } from "../controllers";
 
 const db = new Hono<{ Bindings: Bindings }>();

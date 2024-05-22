@@ -1,1 +1,1 @@
-export { dbRequest } from "./request";
+export * from "./request";

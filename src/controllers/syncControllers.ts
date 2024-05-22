@@ -1,7 +1,8 @@
-import { Bindings, DoubanObject } from "../models";
+import { DoubanObject } from "../models";
 import { fetchDoubanObjects } from "../api";
+import { Bindings, ObjectTypes, ObjectStatus } from "../types";
 
-const sync = async (bindings: Bindings) => {
+export const sync = async (bindings: Bindings) => {
     const {
         DB,
         DOUBAN_BUCKET,
@@ -26,11 +27,10 @@ const sync = async (bindings: Bindings) => {
                 i = 0;
             while (confition) {
                 console.log(type);
-                console.log(type);
                 const res: any = await fetchDoubanObjects(
                     DBID,
-                    type,
-                    status,
+                    type as ObjectTypes,
+                    status as ObjectStatus,
                     i
                 );
                 let data: any = await res.json();
@@ -112,5 +112,3 @@ const sync = async (bindings: Bindings) => {
 
     return "Synced";
 };
-
-export default sync;

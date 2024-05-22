@@ -1,1 +1,1 @@
-export { DoubanObject, Bindings } from "./dbModule";
+export { DoubanObject } from "./dbModule";

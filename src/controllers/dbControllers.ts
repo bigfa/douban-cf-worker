@@ -2,11 +2,13 @@ import { Context } from "hono";
 import { DoubanObject } from "../models";
 import { dbRequest } from "../utils";
 import { fetchDoubanObject, fetchDoubanObjects } from "../api";
+import { ObjectTypes, ObjectStatus } from "../types";
 
 export const getObjects = async (c: Context) => {
-    const type: string = c.req.query("type") || "movie";
+    const type: ObjectTypes = (c.req.query("type") as ObjectTypes) || "movie";
     const paged: number = parseInt(c.req.query("paged") || "1");
-    const status: string = c.req.query("status") || "done";
+    const status: ObjectStatus =
+        (c.req.query("status") as ObjectStatus) || "done";
     console.log(status);
     //@ts-ignore
     const objects = await c.env.DB.prepare(
@@ -31,8 +33,9 @@ export const getObjects = async (c: Context) => {
 
 export const initDB = async (c: Context) => {
     const paged: number = parseInt(c.req.query("paged") || "0");
-    const type: string = c.req.query("type") || "movie";
-    const status: string = c.req.query("status") || "done";
+    const type: ObjectTypes = (c.req.query("type") as ObjectTypes) || "movie";
+    const status: ObjectStatus =
+        (c.req.query("status") as ObjectStatus) || "done";
     console.log(paged);
 
     const res: any = await fetchDoubanObjects(c.env.DBID, type, status, paged);
@@ -88,11 +91,8 @@ export const initDB = async (c: Context) => {
 
 export const fetchDBPoster = async (c: Context) => {
     // get url from query
-    const type = c.req.param("type");
-    const typeList = ["movie", "book", "music", "drama", "game"];
-    if (!typeList.includes(type)) {
-        return c.text("Type not found");
-    }
+    const type: ObjectTypes = (c.req.query("type") as ObjectTypes) || "movie";
+
     // remove .jpg
     const id = c.req.param("id").replace(".jpg", "");
 
@@ -157,9 +157,7 @@ export const fetchDBPoster = async (c: Context) => {
 };
 
 export const fetchDBObject = async (c: Context) => {
-    console.log(c.req.param("type"));
-
-    const type = c.req.param("type");
+    const type: ObjectTypes = (c.req.query("type") as ObjectTypes) || "movie";
     const id = c.req.param("id");
     // @ts-ignore
     let object = await c.env.DB.prepare(

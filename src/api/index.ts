@@ -1,1 +1,1 @@
-export { fetchDoubanObject, fetchDoubanObjects } from "./douban";
+export * from "./douban";

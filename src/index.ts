@@ -1,7 +1,7 @@
 import { Hono } from "hono";
-import sync from "./controllers/syncControllers";
+import { sync } from "./controllers";
 import { Douban } from "./routers";
-import { Bindings } from "./models";
+import { Bindings } from "./types";
 import { errorHandler, notFound } from "./middlewares";
 
 const app = new Hono<{ Bindings: Bindings }>();
