@@ -1,5 +1,5 @@
 import { Bindings, DoubanObject } from "../models";
-import { dbRequest } from "../utils";
+import { fetchDoubanObjects } from "../api";
 
 const sync = async (bindings: Bindings) => {
     const {
@@ -27,13 +27,11 @@ const sync = async (bindings: Bindings) => {
             while (confition) {
                 console.log(type);
                 console.log(type);
-                const res: any = await dbRequest(
-                    `https://frodo.douban.com/api/v2/user/${DBID}/interests`,
-                    {
-                        count: 50,
-                        start: 50 * i,
-                        type,
-                    }
+                const res: any = await fetchDoubanObjects(
+                    DBID,
+                    type,
+                    status,
+                    i
                 );
                 let data: any = await res.json();
                 const interets = data.interests;

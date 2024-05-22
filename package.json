@@ -2,7 +2,7 @@
     "scripts": {
         "dev": "wrangler dev src/index.ts",
         "deploy": "wrangler deploy --minify src/index.ts",
-        "init": "node --env-file=config.env src/utils/init.js"
+        "init": "node --env-file=config.env scripts/init.js"
     },
     "dependencies": {
         "hono": "^4.3.7"

@@ -1,6 +1,7 @@
 import { Context } from "hono";
 import { DoubanObject } from "../models";
 import { dbRequest } from "../utils";
+import { fetchDoubanObject, fetchDoubanObjects } from "../api";
 
 export const getObjects = async (c: Context) => {
     const type: string = c.req.query("type") || "movie";
@@ -34,14 +35,7 @@ export const initDB = async (c: Context) => {
     const status: string = c.req.query("status") || "done";
     console.log(paged);
 
-    const res: any = await dbRequest(
-        `https://frodo.douban.com/api/v2/user/${c.env.DBID}/interests`,
-        {
-            count: 50,
-            start: 50 * paged,
-            type,
-        }
-    );
+    const res: any = await fetchDoubanObjects(c.env.DBID, type, status, paged);
     let data: any = await res.json();
     const interets = data.interests;
     console.log(type, status, interets.length, paged);
@@ -110,10 +104,7 @@ export const fetchDBPoster = async (c: Context) => {
     const object: any = await c.env.DOUBAN_BUCKET.get(key);
     // if object is null or size < 50b, fetch from douban
     if (object === null || object.size < 50) {
-        const d: any = await dbRequest(
-            `https://frodo.douban.com/api/v2/${type}/${id}`
-        );
-
+        const d: any = await fetchDoubanObject(type, id);
         const data = await d.json();
         console.log(data);
         const poster = data.pic.large;
@@ -180,10 +171,7 @@ export const fetchDBObject = async (c: Context) => {
     console.log(object);
 
     if (object === null) {
-        const d: any = await dbRequest(
-            `https://frodo.douban.com/api/v2/${type}/${id}`
-        );
-
+        const d: any = await fetchDoubanObject(type, id);
         const data = await d.json();
         console.log(data);
 
