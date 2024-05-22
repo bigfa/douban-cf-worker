@@ -17,7 +17,7 @@ export interface DoubanObject {
     subject_id: string;
     name: string;
     card_subtitle: string;
-    create_time: number;
+    create_time: any;
     douban_score: string;
     link: string;
     type: string;

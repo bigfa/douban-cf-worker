@@ -84,10 +84,11 @@ const sync = async (bindings: Bindings) => {
                             } else {
                                 if (dbobject.status != interet.status) {
                                     await DB.prepare(
-                                        "UPDATE douban_objects SET status = ? WHERE subject_id = ? AND type = ?"
+                                        "UPDATE douban_objects SET status = ?, create_time = ? WHERE subject_id = ? AND type = ?"
                                     )
                                         .bind(
                                             interet.status,
+                                            interet.create_time,
                                             interet.subject.id,
                                             type
                                         )

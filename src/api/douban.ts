@@ -1,12 +1,11 @@
 import { dbRequest } from "../utils";
-import { Bindings } from "../models";
 
-export const fetchDoubanObject = async (type: string, id: string) => {
+export const fetchDoubanObject = async <T>(type: string, id: T) => {
     return await dbRequest(`https://frodo.douban.com/api/v2/${type}/${id}`);
 };
 
-export const fetchDoubanObjects = async (
-    DBID: string,
+export const fetchDoubanObjects = async <T>(
+    DBID: T,
     type: string,
     status: string,
     paged: number
