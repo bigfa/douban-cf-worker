@@ -171,7 +171,6 @@ export const fetchDBObject = async (c: Context) => {
     if (object === null) {
         const d: any = await fetchDoubanObject(type, id);
         const data = await d.json();
-        console.log(data);
 
         await c.env.DB.prepare(
             "INSERT INTO douban_objects (subject_id, name , card_subtitle, douban_score,link,type) VALUES (?, ?, ?, ?, ?, ?)"

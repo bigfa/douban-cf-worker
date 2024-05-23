@@ -16,21 +16,23 @@ export const sync = async (bindings: Bindings) => {
         STATUSES,
     } = bindings;
 
-    const types: string = TYPES;
-    const typeList = types.split(",");
-    const status: string = STATUSES;
-    const statusList = status.split(",");
-    console.log(typeList);
+    const typeList: Array<ObjectTypes> = TYPES.split(",").map(
+        (status: string) => status as ObjectTypes
+    );
+
+    const statusList: Array<ObjectStatus> = STATUSES.split(",").map(
+        (status: string) => status as ObjectStatus
+    );
+
     for (let type of typeList) {
         for (let status of statusList) {
-            let confition = true,
-                i = 0;
+            let confition: boolean = true,
+                i: number = 0;
             while (confition) {
-                console.log(type);
                 const res: any = await fetchDoubanObjects(
                     DBID,
-                    type as ObjectTypes,
-                    status as ObjectStatus,
+                    type,
+                    status,
                     i
                 );
                 let data: any = await res.json();
