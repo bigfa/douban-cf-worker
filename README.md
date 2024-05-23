@@ -60,7 +60,7 @@ npm install
 初始化数据库，也可在后台创建。
 
 ```
-npx wrangler d1 execute create douban
+npx wrangler d1 create douban
 
 ```
 
@@ -82,7 +82,23 @@ npx wrangler d1 execute douban --remote --file=./schema.sql
 npm run deploy
 ```
 
+### Github Action 自动部署
+
+clone 本项目或者直接 use this template
+
+进入 Github 项目的设置，`Settings->Secrets and variables->Actions->Repository secret`，新增一个 `secret`，命名为 `CLOUDFLARE_API_TOKEN`。如果需要修改数据库名需要编辑`.github/workflows/deploy.yml`,douban 就是数据库名。
+
+```
+wrangler d1 execute douban --file=./schema.sql
+```
+
+[密钥设置地址](https://dash.cloudflare.com/profile/api-tokens)，注意要给 D1 的编辑权限。
+
+这样 main 分支有更新的时候就会自动部署了，部署前记得修改`wrangler.toml`配置文件。
+
 ### 初始化方法
+
+**即使自动部署，初始化还是需要在本地完成，除非你的数据比较少，等着定时任务自动同步就好了。**
 
 配置文件`config.env`
 
