@@ -122,6 +122,8 @@ npm run init
 
 Worker 对外提供了 3 个接口，标记条目列表、单个条目信息、本地化条目封面。
 
+详细中文 API 文档见 [`docs/API.md`](docs/API.md)。
+
 -   条目列表`/list`，支持两个参数 `type` 和 `paged`,`type` 为条目类型，`status` 为状态类型，`paged` 为页码，`get` 请求。
 -   单个条目为`/:type/:id`,`type` 为类型，`id` 为条目 `id`。
 -   本地化封面接口无序主动调用，在调用上面两个接口时会根据具体情况自动调用。

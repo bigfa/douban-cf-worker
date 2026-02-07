@@ -1,13 +1,12 @@
 export type Bindings = {
-    // Add your bindings here
     DB: D1Database;
     DOUBAN_BUCKET: R2Bucket;
-    FARALLON: KVNamespace;
+    FARALLON?: KVNamespace;
     DOMAIN: string;
-    DBID: string;
+    DBID: string | number;
     R2DOMAIN: string;
     WOKRERDOMAIN: string;
-    PAGESIZE: number;
+    PAGESIZE: number | string;
     TYPES: string;
     TOKEN: string;
     STATUSES: string;
